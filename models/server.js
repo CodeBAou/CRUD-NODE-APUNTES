@@ -8,7 +8,10 @@ class Server{
 
         this.app          = express();
         this.port         = process.env.PORT;//Variable de entorno puerto conexion
+        
         this.usuariosPath = '/api/usuarios';//path api
+        this.authPath     = '/api/auth';
+      
 
         //Conectar a Mongo
         this.conectarDB();
@@ -46,8 +49,8 @@ class Server{
     }
 
     routes(){
-      //path a partir del cual funcionara la api
-      this.app.use( this.usuariosPath, require('../routes/usuarios') ); //ruta
+      this.app.use( this.authPath, require('../routes/auth') );
+      this.app.use( this.usuariosPath, require('../routes/usuarios'));
     }
 
   

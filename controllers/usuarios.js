@@ -1,11 +1,13 @@
 const { response, request } = require( 'express' );
 const Usuario = require('../models/usuarios');
 const bcryptjs = require('bcryptjs');
+
 //PARAMETROS URL
 //http://localhost:8080/api/usuarios?q=hola&nombre=boris&apikey=12345678
 
 //CONTROLADOR USUARIOS
-//En el controlador guardamos el tratamiento de las respuestas
+//En el controlador guardamos el tratamiento de las respuestas (Funciones para una ruta).
+
 const usuariosGet = async(req = require, res = response ) => {
 
     //{{url}}/api/usuarios?desde=0&limite=6
@@ -75,13 +77,12 @@ const usuariosPut  = async ( req , res = response) => {
 
 const usuariosDel  = async(req, res = response) => {
     
-    const { id } = req.params;  
+    const { id }             = req.params;  
     //Borra usuario por id Fisicamente
-    const usuario = await Usuario.findByIdAndDelete(id); //
+    const usuario            = await Usuario.findByIdAndUpdate(id, {estado: false} ); //
+    const usuarioAutenticado = req.usuario;
 
-    res.json({
-        usuario
-    });
+    res.json( { usuario, usuarioAutenticado } );
 };
 
 const usuarioPath = (req, res = response) => {

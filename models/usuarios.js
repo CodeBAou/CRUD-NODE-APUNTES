@@ -2,6 +2,7 @@ const { Schema, model } = require('mongoose');
 
 //Se define el Schema para los documento mongo de usuarios
 const UsuarioSchema = Schema({
+
     nombre:{
         type: String,
         required: [true, 'El nombre es obligatorio']
@@ -35,5 +36,12 @@ const UsuarioSchema = Schema({
 });
 
 //model() - funcion pone nombre a la coleccion de mongo y se le pasa el Schema
+
+//Se modifica el modelo para devolveren las consultas
+UsuarioSchema.methods.toJSON = function(){
+    const { __v, password, _id, ...usuario} = this.toObject();//quitamos las propiedades __v, password, _id, del objecto usuario
+    usuario.uid = _id;//añadimos propiedad uid a usuario con el valor de _id
+    return usuario;
+}
 
 module.exports = model( 'Usuario', UsuarioSchema);//Si pones Usuario mongo por la 's' para el plural automaticamente

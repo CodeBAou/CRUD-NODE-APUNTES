@@ -1,10 +1,35 @@
-const { Router }        = require('express');
-const { check }         = require('express-validator');
-const { validar }       = require('../middlewares/validar-campos');
-const { usuariosGet, usuariosPost, usuariosPut, usuariosDel, usuarioPath} = require('../controllers/usuarios');
-const { esRolValidado, emailExiste, existeUsuarioPorId } = require('../helpers/db-validators');
+//Paquetes Node
+const { Router } = require('express');
+const { check }  = require('express-validator');
 
-const router            = Router();
+//Importacion Middlewares
+//const { validar }      = require('../middlewares/validar-campos'); // Importacion 1
+//const { validarJWT }   = require('../middlewares/validar-jwt'); // Importacion 2
+//const { c, tieneRole } = require('../middlewares/validar-roles'); // Importacion 3
+
+//optimizar las importaciones anteriores ( Forma mas limpia de importar )
+const {
+    validar,
+    validarJWT,            
+    esAdminRole,
+    tieneRole
+} = require('../middlewares'); //Apunta al middlewares/index.js
+
+//Controller
+const { usuariosGet, 
+        usuariosPost, 
+        usuariosPut, 
+        usuariosDel, 
+        usuarioPath 
+    } = require('../controllers/usuarios');
+    
+//Validadores db
+const { esRolValidado, 
+        emailExiste, 
+        existeUsuarioPorId 
+    } = require('../helpers/db-validators');
+        
+const router = Router();
 
 //Rutas de nuestra api pasando las funciones del controlador, se hacen validaciones por middlewar
 // con la ayuda del Paquete express-validator
@@ -21,18 +46,20 @@ router.post('/', [
     validar //Comprueba que no hay errores en los checks
 ], usuariosPost );//Funcion que se ejecuta en esta ruta (Controlador)
 
-
 router.put('/:id',[
     check('id', 'No es un ID valido').isMongoId(),
     check('id').custom( existeUsuarioPorId ),
     check('rol').custom(  esRolValidado ),
-    validar//Comprouba que no hay errores en lo checks
+    validar//Comprueba que no hay errores en lo checks
 ],usuariosPut );
 
-router.delete('/:id',[ 
+router.delete('/:id',[
+    validarJWT,
+    esAdminRole, //Fuerza a que el usuario sea administrador
+    tieneRole( 'ADMIN_ROLE', 'VENTAS_ROLE'), //middleware , para indicar el tipo de Roles que se permite en la peticion
     check('id', 'No es un ID valido').isMongoId(),
     check('id').custom( existeUsuarioPorId ),
-    validar//Comprouba que no hay errores en lo checks
+    validar//Comprueba que no hay errores en lo checks
 ],usuariosDel);
 
 router.patch('/', usuarioPath);
